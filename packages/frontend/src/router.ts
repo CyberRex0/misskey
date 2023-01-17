@@ -364,6 +364,10 @@ export const routes = [{
 		name: 'roles',
 		component: page(() => import('./pages/admin/roles.edit.vue')),
 	}, {
+		path: '/roles/quick-new',
+		name: 'roleQuickNew',
+		component: page(() => import('./pages/admin/roles.quick-new.vue')),
+	},{
 		path: '/roles/:id',
 		name: 'roles',
 		component: page(() => import('./pages/admin/roles.role.vue')),

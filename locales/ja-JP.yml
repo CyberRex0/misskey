@@ -937,9 +937,11 @@ cannotPerformTemporary: "一時的に利用できません"
 cannotPerformTemporaryDescription: "操作回数が制限を超過するため一時的に利用できません。しばらく時間を置いてから再度お試しください。"
 preset: "プリセット"
 selectFromPresets: "プリセットから選択"
+rolesQuickNew: "ロールのクイック作成"
 
 _role:
   new: "ロールの作成"
+  quickNew: "クイック作成"
   edit: "ロールの編集"
   name: "ロール名"
   description: "ロールの説明"
@@ -995,6 +997,9 @@ _role:
     and: "～かつ～"
     or: "～または～"
     not: "～ではない"
+
+_roleQuick:
+  moderatorRole: "モデレーターロール"
 
 _sensitiveMediaDetection:
   description: "機械学習を使って自動でセンシティブなメディアを検出し、モデレーションに役立てることができます。サーバーの負荷が少し増えます。"

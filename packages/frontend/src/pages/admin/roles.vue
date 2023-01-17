@@ -5,6 +5,7 @@
 		<MkSpacer :content-max="700">
 			<div class="_gaps">
 				<MkButton primary rounded @click="create"><i class="ti ti-plus"></i> {{ i18n.ts._role.new }}</MkButton>
+				<MkButton primary rounded @click="quickCreate"><i class="ti ti-plus"></i> {{ i18n.ts._role.quickNew }}</MkButton>
 				<MkFolder>
 					<template #label>{{ i18n.ts._role.baseRole }}</template>
 					<div class="_gaps">
@@ -194,6 +195,10 @@ async function updateBaseRole() {
 
 function create() {
 	router.push('/admin/roles/new');
+}
+
+function quickCreate() {
+	router.push('/admin/roles/quick-new');
 }
 
 const headerActions = $computed(() => []);
