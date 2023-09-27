@@ -1,24 +1,41 @@
+<!--
+SPDX-FileCopyrightText: syuilo and other misskey contributors
+SPDX-License-Identifier: AGPL-3.0-only
+-->
+
 <template>
 <MkStickyContainer>
 	<template #header><XHeader :actions="headerActions" :tabs="headerTabs"/></template>
 	<MkSpacer :contentMax="700" :marginMin="16" :marginMax="32">
 		<FormSuspense :p="init">
-			<div class="_gaps_s">
-				<MkSwitch v-model="enableServerMachineStats">
-					<template #label>{{ i18n.ts.enableServerMachineStats }}</template>
-				</MkSwitch>
+			<div class="_gaps">
+				<div class="_panel" style="padding: 16px;">
+					<MkSwitch v-model="enableServerMachineStats">
+						<template #label>{{ i18n.ts.enableServerMachineStats }}</template>
+						<template #caption>{{ i18n.ts.turnOffToImprovePerformance }}</template>
+					</MkSwitch>
+				</div>
 
-				<MkSwitch v-model="enableIdenticonGeneration">
-					<template #label>{{ i18n.ts.enableIdenticonGeneration }}</template>
-				</MkSwitch>
+				<div class="_panel" style="padding: 16px;">
+					<MkSwitch v-model="enableIdenticonGeneration">
+						<template #label>{{ i18n.ts.enableIdenticonGeneration }}</template>
+						<template #caption>{{ i18n.ts.turnOffToImprovePerformance }}</template>
+					</MkSwitch>
+				</div>
 
-				<MkSwitch v-model="enableChartsForRemoteUser">
-					<template #label>{{ i18n.ts.enableChartsForRemoteUser }}</template>
-				</MkSwitch>
+				<div class="_panel" style="padding: 16px;">
+					<MkSwitch v-model="enableChartsForRemoteUser">
+						<template #label>{{ i18n.ts.enableChartsForRemoteUser }}</template>
+						<template #caption>{{ i18n.ts.turnOffToImprovePerformance }}</template>
+					</MkSwitch>
+				</div>
 
-				<MkSwitch v-model="enableChartsForFederatedInstances">
-					<template #label>{{ i18n.ts.enableChartsForFederatedInstances }}</template>
-				</MkSwitch>
+				<div class="_panel" style="padding: 16px;">
+					<MkSwitch v-model="enableChartsForFederatedInstances">
+						<template #label>{{ i18n.ts.enableChartsForFederatedInstances }}</template>
+						<template #caption>{{ i18n.ts.turnOffToImprovePerformance }}</template>
+					</MkSwitch>
+				</div>
 			</div>
 		</FormSuspense>
 	</MkSpacer>
@@ -29,10 +46,10 @@
 import { } from 'vue';
 import XHeader from './_header_.vue';
 import FormSuspense from '@/components/form/suspense.vue';
-import * as os from '@/os';
-import { fetchInstance } from '@/instance';
-import { i18n } from '@/i18n';
-import { definePageMetadata } from '@/scripts/page-metadata';
+import * as os from '@/os.js';
+import { fetchInstance } from '@/instance.js';
+import { i18n } from '@/i18n.js';
+import { definePageMetadata } from '@/scripts/page-metadata.js';
 import MkSwitch from '@/components/MkSwitch.vue';
 
 let enableServerMachineStats: boolean = $ref(false);
