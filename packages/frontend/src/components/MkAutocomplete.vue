@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: syuilo and other misskey contributors
+SPDX-FileCopyrightText: syuilo and misskey-project
 SPDX-License-Identifier: AGPL-3.0-only
 -->
 
@@ -35,6 +35,11 @@ SPDX-License-Identifier: AGPL-3.0-only
 			<span>{{ tag }}</span>
 		</li>
 	</ol>
+	<ol v-else-if="mfmParams.length > 0" ref="suggests" :class="$style.list">
+		<li v-for="param in mfmParams" tabindex="-1" :class="$style.item" @click="complete(type, q.params.toSpliced(-1, 1, param).join(','))" @keydown="onKeydown">
+			<span>{{ param }}</span>
+		</li>
+	</ol>
 </div>
 </template>
 
@@ -45,24 +50,14 @@ import contains from '@/scripts/contains.js';
 import { char2twemojiFilePath, char2fluentEmojiFilePath } from '@/scripts/emoji-base.js';
 import { acct } from '@/filters/user.js';
 import * as os from '@/os.js';
-import { MFM_TAGS } from '@/scripts/mfm-tags.js';
+import { misskeyApi } from '@/scripts/misskey-api.js';
 import { defaultStore } from '@/store.js';
 import { emojilist, getEmojiName } from '@/scripts/emojilist.js';
 import { i18n } from '@/i18n.js';
 import { miLocalStorage } from '@/local-storage.js';
 import { customEmojis } from '@/custom-emojis.js';
-
-type EmojiDef = {
-	emoji: string;
-	name: string;
-	url: string;
-	aliasOf?: string;
-} | {
-	emoji: string;
-	name: string;
-	aliasOf?: string;
-	isCustomEmoji?: true;
-};
+import { MFM_TAGS, MFM_PARAMS } from '@/const.js';
+import { searchEmoji, EmojiDef } from '@/scripts/search-emoji.js';
 
 const lib = emojilist.filter(x => x.category !== 'flags');
 
@@ -129,7 +124,7 @@ export default {
 <script lang="ts" setup>
 const props = defineProps<{
 	type: string;
-	q: string | null;
+	q: any;
 	textarea: HTMLTextAreaElement;
 	close: () => void;
 	x: number;
@@ -150,6 +145,7 @@ const hashtags = ref<any[]>([]);
 const emojis = ref<(EmojiDef)[]>([]);
 const items = ref<Element[] | HTMLCollection>([]);
 const mfmTags = ref<string[]>([]);
+const mfmParams = ref<string[]>([]);
 const select = ref(-1);
 const zIndex = os.claimZIndex('high');
 
@@ -201,7 +197,7 @@ function exec() {
 			users.value = JSON.parse(cache);
 			fetching.value = false;
 		} else {
-			os.api('users/search-by-username-and-host', {
+			misskeyApi('users/search-by-username-and-host', {
 				username: props.q,
 				limit: 10,
 				detail: false,
@@ -224,7 +220,7 @@ function exec() {
 				hashtags.value = hashtags;
 				fetching.value = false;
 			} else {
-				os.api('hashtags/search', {
+				misskeyApi('hashtags/search', {
 					query: props.q,
 					limit: 30,
 				}).then(searchedHashtags => {
@@ -242,29 +238,7 @@ function exec() {
 			return;
 		}
 
-		const matched: EmojiDef[] = [];
-		const max = 30;
-
-		emojiDb.value.some(x => {
-			if (x.name.startsWith(props.q ?? '') && !x.aliasOf && !matched.some(y => y.emoji === x.emoji)) matched.push(x);
-			return matched.length === max;
-		});
-
-		if (matched.length < max) {
-			emojiDb.value.some(x => {
-				if (x.name.startsWith(props.q ?? '') && !matched.some(y => y.emoji === x.emoji)) matched.push(x);
-				return matched.length === max;
-			});
-		}
-
-		if (matched.length < max) {
-			emojiDb.value.some(x => {
-				if (x.name.includes(props.q ?? '') && !matched.some(y => y.emoji === x.emoji)) matched.push(x);
-				return matched.length === max;
-			});
-		}
-
-		emojis.value = matched;
+		emojis.value = searchEmoji(props.q, emojiDb.value);
 	} else if (props.type === 'mfmTag') {
 		if (!props.q || props.q === '') {
 			mfmTags.value = MFM_TAGS;
@@ -272,6 +246,13 @@ function exec() {
 		}
 
 		mfmTags.value = MFM_TAGS.filter(tag => tag.startsWith(props.q ?? ''));
+	} else if (props.type === 'mfmParam') {
+		if (props.q.params.at(-1) === '') {
+			mfmParams.value = MFM_PARAMS[props.q.tag] ?? [];
+			return;
+		}
+
+		mfmParams.value = MFM_PARAMS[props.q.tag].filter(param => param.startsWith(props.q.params.at(-1) ?? ''));
 	}
 }
 
@@ -309,10 +290,23 @@ function onKeydown(event: KeyboardEvent) {
 			}
 			break;
 
-		case 'Tab':
 		case 'ArrowDown':
 			cancel();
 			selectNext();
+			break;
+
+		case 'Tab':
+			if (event.shiftKey) {
+				if (select.value !== -1) {
+					cancel();
+					selectPrev();
+				} else {
+					props.close();
+				}
+			} else {
+				cancel();
+				selectNext();
+			}
 			break;
 
 		default:
@@ -345,7 +339,7 @@ function applySelect() {
 
 function chooseUser() {
 	props.close();
-	os.selectUser().then(user => {
+	os.selectUser({ includeSelf: true }).then(user => {
 		complete('user', user);
 		props.textarea.focus();
 	});

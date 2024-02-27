@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: syuilo and other misskey contributors
+ * SPDX-FileCopyrightText: syuilo and misskey-project
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
@@ -16,12 +16,9 @@ export const meta = {
 	requireCredential: false,
 
 	res: {
-		oneOf: [{
-			type: 'object',
-			ref: 'FederationInstance',
-		}, {
-			type: 'null',
-		}],
+		type: 'object',
+		optional: false, nullable: true,
+		ref: 'FederationInstance',
 	},
 } as const;
 
@@ -46,7 +43,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 			const instance = await this.instancesRepository
 				.findOneBy({ host: this.utilityService.toPuny(ps.host) });
 
-			return instance ? await this.instanceEntityService.pack(instance) : null;
+			return instance ? await this.instanceEntityService.pack(instance, me) : null;
 		});
 	}
 }

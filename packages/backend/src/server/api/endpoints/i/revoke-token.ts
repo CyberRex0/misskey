@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: syuilo and other misskey contributors
+ * SPDX-FileCopyrightText: syuilo and misskey-project
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
@@ -18,7 +18,7 @@ export const paramDef = {
 	type: 'object',
 	properties: {
 		tokenId: { type: 'string', format: 'misskey:id' },
-		token: { type: 'string' },
+		token: { type: 'string', nullable: true },
 	},
 	anyOf: [
 		{ required: ['tokenId'] },
@@ -34,7 +34,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 	) {
 		super(meta, paramDef, async (ps, me) => {
 			if (ps.tokenId) {
-				const tokenExist = await this.accessTokensRepository.exist({ where: { id: ps.tokenId } });
+				const tokenExist = await this.accessTokensRepository.exists({ where: { id: ps.tokenId } });
 
 				if (tokenExist) {
 					await this.accessTokensRepository.delete({
@@ -43,7 +43,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 					});
 				}
 			} else if (ps.token) {
-				const tokenExist = await this.accessTokensRepository.exist({ where: { token: ps.token } });
+				const tokenExist = await this.accessTokensRepository.exists({ where: { token: ps.token } });
 
 				if (tokenExist) {
 					await this.accessTokensRepository.delete({

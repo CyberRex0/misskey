@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: syuilo and other misskey contributors
+SPDX-FileCopyrightText: syuilo and misskey-project
 SPDX-License-Identifier: AGPL-3.0-only
 -->
 
@@ -73,7 +73,6 @@ function getReactionName(reaction: string): string {
 }
 
 .users {
-	contain: content;
 	flex: 1;
 	min-width: 0;
 	margin: -4px 14px 0 10px;
@@ -85,7 +84,7 @@ function getReactionName(reaction: string): string {
 	line-height: 24px;
 	padding-top: 4px;
 	white-space: nowrap;
-	overflow: hidden;
+	overflow: visible;
 	text-overflow: ellipsis;
 }
 
